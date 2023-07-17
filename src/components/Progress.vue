@@ -1,11 +1,13 @@
 <template>
-  <div :class="['progress', `${processBgStatus}`]">
+  <div :class="['progress', `${processBgStatus}`, `${progressVertical}`]">
     <div class="progress-inner" @click="emptyClick">
       <div :style="progressStyle" class="progress-bg" @click.stop="fullClick"><span v-if="textInside">{{ percent
       }}%</span></div>
     </div>
-    <div class="progress-text">
-      <span v-if="!textInside">{{ percent }}%</span>
+    <div class="progress-text" v-if="!textInside">
+      <span v-if="status === 'active'">{{ percent }}%</span>
+      <i v-else-if="status === 'wrong'&&percent!==100" class="ivu-icon ivu-icon-ios-close-circle text-red"></i>
+      <i v-else class="ivu-icon ivu-icon-ios-checkmark-circle text-green"></i>
     </div>
   </div>
 </template>
@@ -29,10 +31,20 @@ export default {
     textInside: {
       type: Boolean,
       default: false
+    },
+    vertical: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
     progressStyle() {
+      if (this.vertical) {
+        return {
+          height: this.percent + '%',
+          width: this.strokeWidth + 'px'
+        }
+      }
       return {
         width: this.percent + '%',
         height: this.strokeWidth + 'px'
@@ -46,6 +58,12 @@ export default {
       } else {
         return 'progress-bg-success'
       }
+    },
+    progressVertical() {
+      if (this.vertical) {
+        return 'progress-vertical'
+      }
+      return ''
     }
   },
   methods: {
@@ -64,8 +82,31 @@ export default {
 <style scoped>
 .progress {
   position: relative;
-  display: inline-block;
   width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.progress-vertical {
+  width: 10px;
+  height: 100%;
+  display: inline-block;
+}
+
+.progress-vertical .progress-inner::after {
+  content: '';
+  display: inline-block;
+  height: 100%;
+}
+
+.progress-vertical .progress-inner {
+  width: auto;
+  height: 100%;
+  vertical-align: bottom;
+}
+
+.progress-vertical .progress-bg {
+  display: inline-block;
 }
 
 .progress-inner {
@@ -73,13 +114,14 @@ export default {
   width: 90%;
   background-color: #f3f3f3;
   border-radius: 100px;
-  vertical-align: middle;
   position: relative;
 }
-.progress-text{
+
+.progress-text {
   display: inline-block;
-  width: 10%;
+  margin-left: 10px;
 }
+
 .progress-bg {
   border-radius: 100px;
   transition: all .5s linear;
@@ -87,6 +129,7 @@ export default {
   display: flex;
   align-items: center;
   flex-direction: row-reverse;
+  width: auto;
   background-color: #2d8cf0;
   position: relative;
 }
@@ -122,5 +165,13 @@ export default {
 
 .progress-bg-wrong .progress-bg {
   background-color: #ed4014;
+}
+
+.text-red {
+  color: #ed4014;
+}
+
+.text-green {
+  color: #19be6b;
 }
 </style>
